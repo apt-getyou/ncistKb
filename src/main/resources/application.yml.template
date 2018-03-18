@@ -1,0 +1,17 @@
+spring:
+    datasource:
+        name: test
+        url: jdbc:mysql://192.168.199.246:3306/test?useUnicode=true&characterEncoding=utf8&useSSL=true
+        username: root
+        password: root
+        hikari:
+              maxLifetime: 1765000
+              maximumPoolSize: 15
+        driver-class-name: com.mysql.jdbc.Driver
+    aop:
+        auto: true
+server:
+  port: 8080
+mybatis:
+  typeAliasesPackage: cn.edu.ncist.kb.model
+  mapperLocations: classpath:mapper/*.xml
