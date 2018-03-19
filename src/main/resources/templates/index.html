@@ -1,13 +1,26 @@
 <html>
 <head>
     <title>学生工作安排</title>
+    <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+    <script src="js/jquery.form.js"></script>
 </head>
 <body>
-<form method="post" action="/getSchedule" enctype="multipart/form-data">
+<form id="form" method="post" action="/getSchedule" enctype="multipart/form-data"
+      onsubmit="return getSchedule();">
+    学年: <input name=""><br>
+    学期: <input name=""><br>
     <input type="file"
            accept="application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
            name="file"><br>
-    <input type="submit" title="提交"><br>
+    <input type="submit" value="提交">
 </form>
+<script>
+	function getSchedule() {
+		$("#form").ajaxSubmit(function (msg) {
+			console.log(msg);
+		});
+		return false;
+	}
+</script>
 </body>
 </html>

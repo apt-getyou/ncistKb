@@ -1,7 +1,13 @@
 package cn.edu.ncist.kb.controllers;
 
+import cn.edu.ncist.kb.bean.ScheduleBean;
+import cn.edu.ncist.kb.exceptions.FileIsEmptyException;
 import cn.edu.ncist.kb.param.ScheduleParam;
+import cn.edu.ncist.kb.result.WebResult;
 import cn.edu.ncist.kb.service.ScheduleService;
+import cn.edu.ncist.kb.utils.ExcelImportXLSXUtil;
+
+import java.util.List;
 
 import javax.annotation.Resource;
 
@@ -28,9 +34,24 @@ public class HomeController {
 
 	@RequestMapping(value = "getSchedule", method = RequestMethod.POST)
 	@ResponseBody
-	public String getSchedule(@RequestParam("file") MultipartFile file, ScheduleParam param) {
-		scheduleService.getSchedule();
-		return "123";
+	public WebResult getSchedule(@RequestParam("file") MultipartFile file, ScheduleParam param) {
+		List<String[]> listOb;
+		if (file.isEmpty()) {
+			throw new FileIsEmptyException();
+		}
+		try {
+			listOb = ExcelImportXLSXUtil.readerExcel(file.getInputStream(), "Sheet1", 14);
+		} catch (Exception e) {
+			throw new FileIsEmptyException();
+		}
+		if (listOb == null || listOb.size() == 0) {
+			throw new FileIsEmptyException();
+		}
+		List<String> xhs = scheduleService.getXhsFormExcel(listOb);
+		List<List<List<String>>> schedule = scheduleService.getSchedule(xhs, param.initBean(new ScheduleBean()));
+		WebResult result = new WebResult();
+		result.addDataMap("schedule", schedule);
+		return result;
 	}
 }
 

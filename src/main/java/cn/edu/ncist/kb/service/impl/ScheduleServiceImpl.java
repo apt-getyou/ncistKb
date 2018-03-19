@@ -1,5 +1,6 @@
 package cn.edu.ncist.kb.service.impl;
 
+import cn.edu.ncist.kb.bean.ScheduleBean;
 import cn.edu.ncist.kb.dao.ScheduleDao;
 import cn.edu.ncist.kb.po.SchedulePO;
 import cn.edu.ncist.kb.service.ScheduleService;
@@ -27,10 +28,11 @@ public class ScheduleServiceImpl implements ScheduleService {
 	private ScheduleDao scheduleDao;
 
 	@Override
-	public List<List<List<String>>> getSchedule() {
-		List<SchedulePO> pos = scheduleDao.queryListByXHs(Collections.singletonList("s"));
-
-		//XXX 分学年学期
+	public List<List<List<String>>> getSchedule(List<String> xhs, ScheduleBean bean) {
+		bean.setXhs(xhs);
+		bean.setXN("2017");
+		bean.setXQ_ID("0");
+		List<SchedulePO> pos = scheduleDao.queryListByXHs(bean);
 
 		Map<String, String> studentMap = getStudentMap(pos);
 		Set<String> studentXHSet = getStudentXHSet(pos);
@@ -51,6 +53,18 @@ public class ScheduleServiceImpl implements ScheduleService {
 			reList.add(sectionList);
 		}
 		return reList;
+	}
+
+	@Override
+	public List<String> getXhsFormExcel(List<String[]> listOb) {
+		// 导入文件内，第一列为学号
+		List<String> xhs = new ArrayList<>();
+		for (String[] strings : listOb) {
+			if (strings.length >= 1) {
+				xhs.add(strings[0]);
+			}
+		}
+		return xhs;
 	}
 
 	/**
@@ -106,11 +120,15 @@ public class ScheduleServiceImpl implements ScheduleService {
 			if (key.contains(i)) {
 				if (sb.length() == 0 || sb.charAt(sb.length() - 1) == ',') {
 					sb.append(i);
+				} else if (i == max) {
+					sb.append("-").append(i);
 				}
 			} else {
-				sb.append(i - 1);
-				if (i != max) {
-					sb.append(",");
+				if (sb.charAt(sb.length() - 1) != ','){
+					sb.append("-").append(i - 1);
+					if (i != max) {
+						sb.append(",");
+					}
 				}
 			}
 		}
@@ -120,6 +138,9 @@ public class ScheduleServiceImpl implements ScheduleService {
 	private void putNoScheduleStudent(Set<String> studentXHSet, Map<ScheduleVO, List<String>> map, Map<ScheduleVO, List<String>> result) {
 		for (Map.Entry<ScheduleVO, List<String>> entry : result.entrySet()) {
 			List<String> haveScheduleStu = map.get(entry.getKey());
+			if (haveScheduleStu == null) {
+				haveScheduleStu = new ArrayList<>();
+			}
 			for (String studentXH : studentXHSet) {
 				if (!haveScheduleStu.contains(studentXH)) {
 					entry.getValue().add(studentXH);
@@ -182,7 +203,7 @@ public class ScheduleServiceImpl implements ScheduleService {
 	private Integer getSection(String jcz) {
 		char[] chars = jcz.toCharArray();
 		if (chars.length >= 3) {
-			return (int) chars[2];
+			return (int) chars[2] - '0';
 		}
 		return 0;
 	}
@@ -190,7 +211,7 @@ public class ScheduleServiceImpl implements ScheduleService {
 	private Integer getDay(String jcz) {
 		char[] chars = jcz.toCharArray();
 		if (chars.length >= 2) {
-			return (int) chars[1];
+			return (int) chars[1] - '0';
 		}
 		return 0;
 	}

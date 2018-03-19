@@ -2,8 +2,14 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="cn.edu.ncist.kb.dao.ScheduleDao">
-    <select id="queryListByXHs" resultType="cn.edu.ncist.kb.po.SchedulePO">
-        SELECT * FROM schedule WHERE USER_XH IN
-        <foreach collection="xhs" item="item" open="(" close=")" separator=",">#{item}</foreach>
+    <select id="queryListByXHs" resultType="cn.edu.ncist.kb.po.SchedulePO"
+            parameterType="cn.edu.ncist.kb.bean.ScheduleBean">
+        SELECT
+        *
+        FROM t_jw_xskb
+        WHERE 1=1
+        AND USER_XH IN <foreach collection="xhs" item="item" open="(" close=")" separator=",">#{item}</foreach>
+        AND XN = #{XN}
+        AND XQ_ID = #{XQ_ID}
     </select>
 </mapper>
