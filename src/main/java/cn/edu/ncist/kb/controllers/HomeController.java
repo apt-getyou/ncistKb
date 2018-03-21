@@ -48,9 +48,8 @@ public class HomeController {
 			throw new FileIsEmptyException();
 		}
 		List<String> xhs = scheduleService.getXhsFormExcel(listOb);
-		List<List<List<String>>> schedule = scheduleService.getSchedule(xhs, param.initBean(new ScheduleBean()));
 		WebResult result = new WebResult();
-		result.addDataMap("schedule", schedule);
+		result.addDataMap("schedule", scheduleService.getSchedule(xhs, param.initBean(new ScheduleBean())));
 		return result;
 	}
 }

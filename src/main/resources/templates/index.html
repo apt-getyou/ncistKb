@@ -7,19 +7,113 @@
 <body>
 <form id="form" method="post" action="/getSchedule" enctype="multipart/form-data"
       onsubmit="return getSchedule();">
-    学年: <input name=""><br>
-    学期: <input name=""><br>
+    学年: <input name=""/><br>
+    学期: <input name=""/><br>
     <input type="file"
            accept="application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
            name="file"><br>
     <input type="submit" value="提交">
 </form>
+<div id="showSc">
+
+</div>
 <script>
 	function getSchedule() {
 		$("#form").ajaxSubmit(function (msg) {
-			console.log(msg);
+			buildHtml(msg);
 		});
 		return false;
+	}
+
+	function buildHtml(msg) {
+		var html = "";
+		html +=
+			"<table id=\"pageRpt\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\">"
+			+
+			"    <tbody>" +
+			"    <tr>" +
+			"        <td>" +
+			"            <table width=\"100%\" border=\"0\" align=\"center\" cellpadding=\"0\" cellspacing=\"0\">"
+			+
+			"                <tbody>" +
+			"                <tr>" +
+			"                    <td style=\"text-align:center;font-weight:bold;font-size:16pt\">华北科技学院网络技术组</td>"
+			+
+			"                </tr>" +
+			"                <tr>" +
+			"                    <td style=\"text-align:center;font-size:13px\"></td>" +
+			"                </tr>" +
+			"                </tbody>" +
+			"            </table>" +
+			"            <br>" +
+			"            <table width=\"99%\" border=\"0\" align=\"center\" cellpadding=\"0\" cellspacing=\"0\">"
+			+
+			"                <tbody>" +
+			"                <tr>" +
+			"                    <td width=\"80%\" align=\"left\"><!--承担单位-->" +
+			"                    </td>" +
+			"                </tr>" +
+			"                </tbody>" +
+			"            </table>" +
+			"            <table width=\"99%\" border=\"1\" align=\"center\" cellpadding=\"0\" cellspacing=\"0\""
+			+
+			"                   bordercolorlight=\"#000000\" bordercolordark=\"#FFFFFF\">" +
+			"                <tbody>" +
+			"                <tr align=\"center\" height=\"25\">" +
+			"                    <td width=\"9%\" colspan=\"2\"> </td>" +
+			"                    <td width=\"13%\" align=\"center\">星期一</td>" +
+			"                    <td width=\"13%\" align=\"center\">星期二</td>" +
+			"                    <td width=\"13%\" align=\"center\">星期三</td>" +
+			"                    <td width=\"13%\" align=\"center\">星期四</td>" +
+			"                    <td width=\"13%\" align=\"center\">星期五</td>" +
+			"                    <td width=\"13%\" align=\"center\">星期六</td>" +
+			"                    <td width=\"13%\" align=\"center\">星期日</td>" +
+			"                </tr>";
+		var sc = $.parseJSON(msg.data.schedule);
+		$.each(sc, function (k, v) {
+			var tempHtml = "<tr>";
+			switch (k) {
+				case "1":
+					tempHtml +=
+						"<td align=\"center\" width=\"5%\" rowspan=\"2\" valign=\"middle\">上<br>午</td>"
+						+
+						"                    <td align=\"center\" width=\"4%\" height=\"150px\">一</td>";
+					break;
+				case "2":
+					tempHtml += "<td align=\"center\" width=\"4%\" height=\"150px\">二</td>";
+					break;
+				case "3":
+					tempHtml +=
+						"<td align=\"center\" width=\"5%\" rowspan=\"2\" valign=\"middle\">下<br>午</td>"
+						+
+						"                    <td align=\"center\" width=\"4%\" height=\"150px\">三</td>";
+					break;
+				case "4":
+					tempHtml += "<td align=\"center\" width=\"4%\" height=\"150px\">四</td>";
+					break;
+				case "5":
+					tempHtml +=
+						"<td align=\"center\" width=\"9%\" rowspan=\"1\" valign=\"middle\" colspan=\"2\">晚上</td>";
+					break
+			}
+			$.each(v, function (key, value) {
+				tempHtml += "<td valign=\\\"top\\\" width=\\\"13%\\\">";
+				$.each(value, function (i , v2) {
+					tempHtml += v2 + "<br>"
+				});
+				tempHtml += "</td>"
+			});
+			tempHtml += "</tr>";
+			html += tempHtml;
+		});
+		html += " </tbody>" +
+				"            </table>" +
+				"        </td>" +
+				"    </tr>" +
+				"    </tbody>" +
+				"</table>";
+
+		$("#showSc").html(html);
 	}
 </script>
 </body>

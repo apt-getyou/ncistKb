@@ -28,7 +28,7 @@ public class ScheduleServiceImpl implements ScheduleService {
 	private ScheduleDao scheduleDao;
 
 	@Override
-	public List<List<List<String>>> getSchedule(List<String> xhs, ScheduleBean bean) {
+	public HashMap<Integer, List<List<String>>> getSchedule(List<String> xhs, ScheduleBean bean) {
 		bean.setXhs(xhs);
 		bean.setXN("2017");
 		bean.setXQ_ID("0");
@@ -43,14 +43,14 @@ public class ScheduleServiceImpl implements ScheduleService {
 		Map<ScheduleVO, List<String>> result = initResultMap(maxWeek);
 		putNoScheduleStudent(studentXHSet, map, result);
 
-		List<List<List<String>>> reList = new ArrayList<>();
+		HashMap<Integer, List<List<String>>> reList = new HashMap<>();
 		for (int section = 1; section <= 5; section++) {
 			List<List<String>> sectionList = new ArrayList<>();
 			for (int day = 1; day <= 7; day++) {
 				List<String> list = getStrings(studentMap, maxWeek, result, section, day);
 				sectionList.add(list);
 			}
-			reList.add(sectionList);
+			reList.put(section, sectionList);
 		}
 		return reList;
 	}
@@ -124,7 +124,7 @@ public class ScheduleServiceImpl implements ScheduleService {
 					sb.append("-").append(i);
 				}
 			} else {
-				if (sb.charAt(sb.length() - 1) != ','){
+				if (sb.charAt(sb.length() - 1) != ',') {
 					sb.append("-").append(i - 1);
 					if (i != max) {
 						sb.append(",");
@@ -132,6 +132,8 @@ public class ScheduleServiceImpl implements ScheduleService {
 				}
 			}
 		}
+		sb.insert(0, "[");
+		sb.append("周]");
 		return sb.toString();
 	}
 

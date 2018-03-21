@@ -2,6 +2,7 @@ package cn.edu.ncist.kb.service;
 
 import cn.edu.ncist.kb.bean.ScheduleBean;
 
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -9,7 +10,7 @@ import java.util.List;
  * @date 2018/3/17 0017 20:02
  */
 public interface ScheduleService {
-	List<List<List<String>>> getSchedule(List<String> xhs, ScheduleBean bean);
+	HashMap<Integer, List<List<String>>> getSchedule(List<String> xhs, ScheduleBean bean);
 
 	List<String> getXhsFormExcel(List<String[]> listOb);
 }
