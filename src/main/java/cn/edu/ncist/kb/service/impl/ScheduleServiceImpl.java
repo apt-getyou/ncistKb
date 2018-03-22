@@ -2,6 +2,7 @@ package cn.edu.ncist.kb.service.impl;
 
 import cn.edu.ncist.kb.bean.ScheduleBean;
 import cn.edu.ncist.kb.dao.ScheduleDao;
+import cn.edu.ncist.kb.enums.DSZEnum;
 import cn.edu.ncist.kb.po.SchedulePO;
 import cn.edu.ncist.kb.service.ScheduleService;
 import cn.edu.ncist.kb.vo.ScheduleVO;
@@ -10,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -30,8 +32,6 @@ public class ScheduleServiceImpl implements ScheduleService {
 	@Override
 	public HashMap<Integer, List<List<String>>> getSchedule(List<String> xhs, ScheduleBean bean) {
 		bean.setXhs(xhs);
-		bean.setXN("2017");
-		bean.setXQ_ID("0");
 		List<SchedulePO> pos = scheduleDao.queryListByXHs(bean);
 
 		Map<String, String> studentMap = getStudentMap(pos);
@@ -116,6 +116,7 @@ public class ScheduleServiceImpl implements ScheduleService {
 		Integer min = Collections.min(key);
 
 		StringBuilder sb = new StringBuilder();
+		int pnum = min;
 		for (int i = min; i <= max; i++) {
 			if (key.contains(i)) {
 				if (sb.length() == 0 || sb.charAt(sb.length() - 1) == ',') {
@@ -125,7 +126,10 @@ public class ScheduleServiceImpl implements ScheduleService {
 				}
 			} else {
 				if (sb.charAt(sb.length() - 1) != ',') {
-					sb.append("-").append(i - 1);
+					if (pnum != i - 1) {
+						sb.append("-").append(i - 1);
+						pnum = i - 1;
+					}
 					if (i != max) {
 						sb.append(",");
 					}
@@ -175,7 +179,7 @@ public class ScheduleServiceImpl implements ScheduleService {
 	private Integer getMaxWeek(List<SchedulePO> pos) {
 		Set<Integer> allWeek = new HashSet<>();
 		for (SchedulePO po : pos) {
-			allWeek.addAll(makeWeekList(po.getSTIMEZC()));
+			allWeek.addAll(makeWeekList(po.getSTIMEZC(), po.getDSZ()));
 		}
 		Integer maxWeek = 1;
 		for (Integer week : allWeek) {
@@ -190,7 +194,7 @@ public class ScheduleServiceImpl implements ScheduleService {
 		Map<ScheduleVO, List<String>> map = new HashMap<>();
 
 		for (SchedulePO po : pos) {
-			List<Integer> weekList = makeWeekList(po.getSTIMEZC());
+			List<Integer> weekList = makeWeekList(po.getSTIMEZC(), po.getDSZ());
 			Integer day = getDay(po.getJCZ());
 			Integer section = getSection(po.getJCZ());
 			for (Integer week : weekList) {
@@ -218,7 +222,7 @@ public class ScheduleServiceImpl implements ScheduleService {
 		return 0;
 	}
 
-	private List<Integer> makeWeekList(String stimezc) {
+	private List<Integer> makeWeekList(String stimezc, String DSZ) {
 		List<Integer> weekList = new ArrayList<>();
 		if (stimezc == null) {
 			return weekList;
@@ -236,7 +240,14 @@ public class ScheduleServiceImpl implements ScheduleService {
 				}
 			}
 		}
-		//XXX 单双周问题
+		DSZEnum dszEnum = DSZEnum.get(DSZ);
+		Iterator<Integer> iterator = weekList.iterator();
+		while (iterator.hasNext()) {
+			if (dszEnum.check(iterator.next())) {
+				continue;
+			}
+			iterator.remove();
+		}
 		return weekList;
 	}
 

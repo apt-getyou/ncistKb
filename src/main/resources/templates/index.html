@@ -7,8 +7,14 @@
 <body>
 <form id="form" method="post" action="/getSchedule" enctype="multipart/form-data"
       onsubmit="return getSchedule();">
-    学年: <input name=""/><br>
-    学期: <input name=""/><br>
+    学年:
+    <div id="xndiv"></div>
+    学期:
+    <select name="XQ_ID">
+        <option value="0">第一学期</option>
+        <option value="1">第二学期</option>
+        <option value="2">第三学期</option>
+    </select><br>
     <input type="file"
            accept="application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
            name="file"><br>
@@ -18,11 +24,32 @@
 
 </div>
 <script>
+	$(function () {
+		buildXNHtml();
+	});
+
 	function getSchedule() {
 		$("#form").ajaxSubmit(function (msg) {
 			buildHtml(msg);
 		});
 		return false;
+	}
+
+	function buildXNHtml() {
+		var mydate = new Date();
+		var cuYear = mydate.getFullYear();
+		var preYear = cuYear - 2;
+		var html = "<select name=\"XN\">";
+		for (var i = 0; i < 5; i++) {
+			if (cuYear == preYear){
+				html += "<option value=\"" + preYear + "\" selected>" + preYear + "</option>";
+            }else {
+			    html += "<option value=\"" + preYear + "\">" + preYear + "</option>";
+            }
+			preYear++;
+		}
+		html += "</select><br>";
+		$("#xndiv").html(html);
 	}
 
 	function buildHtml(msg) {
@@ -98,7 +125,7 @@
 			}
 			$.each(v, function (key, value) {
 				tempHtml += "<td valign=\\\"top\\\" width=\\\"13%\\\">";
-				$.each(value, function (i , v2) {
+				$.each(value, function (i, v2) {
 					tempHtml += v2 + "<br>"
 				});
 				tempHtml += "</td>"
